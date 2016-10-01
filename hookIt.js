@@ -13,22 +13,27 @@ function hookIt(subject, preName, postName) {
     Hook.prototype = Object.create(Object.getPrototypeOf(subject));
     
     Hook.prototype[preName] = function(fName, fn) {
+        fn = Array.isArray(fn) ? fn : [fn];
+        
         if(this._pre[fName]) {
-            this._pre[fName].push(fn);
+            this._pre[fName] = this._pre[fName].concat(fn);;
         } else {
-            this._pre[fName] = [fn];
+            this._pre[fName] = fn;
         }
         return this;
     }
     
     Hook.prototype[postName] = function(fName, fn) {
+        fn = Array.isArray(fn) ? fn : [fn];
+        
         if(this._after[fName]) {
-            this._after[fName].push(fn);
+            this._after[fName] = this._after[fName].concat(fn);;
         } else {
-            this._after[fName] = [fn];
+            this._after[fName] = fn;
         }
         return this;
-    }
+    }  
+    
     
     for(let prop in subject) {
         if(typeof subject[prop] !== "function") continue;
