@@ -12,8 +12,13 @@ function hookIt(subject, preName, postName) {
     
     Hook.prototype = Object.create(Object.getPrototypeOf(subject));
     
-    Hook.prototype[preName] = function(fName, fn) {
-        fn = Array.isArray(fn) ? fn : [fn];
+    Hook.prototype[preName] = function(fName, fn, parallel) {
+        var isArray = Array.isArray(fn);
+        fn = isArray ? fn : [fn];
+        
+        if(parallel && isArray) {
+            fn = [parallelNext(fn)];    
+        }
         
         if(this._pre[fName]) {
             this._pre[fName] = this._pre[fName].concat(fn);;
@@ -23,8 +28,13 @@ function hookIt(subject, preName, postName) {
         return this;
     }
     
-    Hook.prototype[postName] = function(fName, fn) {
-        fn = Array.isArray(fn) ? fn : [fn];
+    Hook.prototype[postName] = function(fName, fn, parallel) {
+        var isArray = Array.isArray(fn);
+        fn = isArray ? fn : [fn];
+        
+        if(parallel && isArray) {
+            fn = [parallelNext(fn)];    
+        }
         
         if(this._after[fName]) {
             this._after[fName] = this._after[fName].concat(fn);;
@@ -57,4 +67,24 @@ function hookIt(subject, preName, postName) {
      }
    
     return new Hook(subject);
+}
+
+
+function parallelNext(fnAr) {
+    return function() {
+        // The done callback will always be the last parameter
+        var args = arguments || [];
+        var argKeys = Object.keys(args);
+        var done = args[argKeys[argKeys.length-1]];
+        
+        var parallelCount = fnAr.length;
+        function next() {
+            if(--parallelCount === 0) done();
+        }
+        
+        Array.prototype.splice.call(args, -1, 1, next); // Replace done with next
+        fnAr.forEach( function(fn) { // Call every function in fnAr
+            fn.apply(this, args)
+        }.bind(this));
+    }
 }
