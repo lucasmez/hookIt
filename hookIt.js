@@ -18,6 +18,7 @@ function hookIt(subject, preName, postName) {
         } else {
             this._pre[fName] = [fn];
         }
+        return this;
     }
     
     Hook.prototype[postName] = function(fName, fn) {
@@ -26,25 +27,24 @@ function hookIt(subject, preName, postName) {
         } else {
             this._after[fName] = [fn];
         }
+        return this;
     }
     
     for(let prop in subject) {
         if(typeof subject[prop] !== "function") continue;
 
-        Hook.prototype[prop] = function() {
+         Hook.prototype[prop] = function() {
             var args = arguments || [];
-            var curHookIndex = 0;
-
+            // Create an array containing all _pre and _post hooks and subject's function in correct call order
+            var allFunctions = (this._pre[prop] || []).concat(this._subj[prop], this._after[prop] || []);
+           
             // Iterate through all hooks and subject's function
-            var next = function() {
-                var curHookFn = this._pre[prop] ? this._pre[prop][curHookIndex++] : null;
-                if(!curHookFn) {
-                    Array.prototype.pop.call(args); // Remove next callback from argument array 
-                    curHookFn = this._subj[prop];
-                }
-                return curHookFn.apply(subject, args);
-            }.bind(this); // Has to be bound because we cannot know the call site of this function
+            function next() {
+                var nextFn = allFunctions.shift() || function() {};
+                return nextFn.apply(subject, args);
+            }
 
+            // Make the next() function available to all hooks and subject's function
             Array.prototype.push.call(args, next);
             return next(); // Initiate iteration
         }
