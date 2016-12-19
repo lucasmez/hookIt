@@ -1,0 +1,25 @@
+{
+  "name": "hookit",
+  "version": "1.0.0",
+  "description": "Add pre and post middlewares to methods",
+  "main": "hookIt.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucasmez/hookIt.git"
+  },
+  "keywords": [
+    "pre",
+    "post",
+    "middleware",
+    "hooks"
+  ],
+  "author": "Lucas Mezalira",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lucasmez/hookIt/issues"
+  },
+  "homepage": "https://github.com/lucasmez/hookIt#readme"
+}
